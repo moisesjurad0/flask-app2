@@ -1,8 +1,17 @@
-# flask
-# flasgger
-# flask-sqlalchemy
-# flask-restful
-# flask-restplus
+gunicorn
+flask-restplus
+flask
+werkzeug
+flask_mongoengine
+flask_swagger_ui
+gunicorn
+mongoengine
+
+
+
+
+
+
 
 # Flask==2.1.1
 # Flask-RESTful==0.3.10
@@ -12,10 +21,19 @@
 # mongoengine==0.22.1
 # flask-restplus==0.14.0
 
-Flask
-Flask-RESTful
-flask_mongoengine
-flask_swagger_ui
-gunicorn
-mongoengine
-flask-restplus
+
+
+
+
+
+
+# flask
+# flasgger
+# flask-sqlalchemy
+# flask-restful
+# flask-restplus
+
+
+
+
+
