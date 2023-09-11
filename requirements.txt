@@ -1,0 +1,6 @@
+flask
+flasgger
+flask-sqlalchemy
+flask-restful
+flask-restplus
+
