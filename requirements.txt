@@ -14,8 +14,8 @@
 
 Flask
 Flask-RESTful
-Flask-MongoEngine
-Flask-Swagger-UI
+flask_mongoengine
+flask_swagger_ui
 gunicorn
 mongoengine
 flask-restplus

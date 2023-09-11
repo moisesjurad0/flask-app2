@@ -1,4 +1,4 @@
-from app import db
+from myapiflask import db
 
 class Person(db.Document):
     name = db.StringField(required=True)

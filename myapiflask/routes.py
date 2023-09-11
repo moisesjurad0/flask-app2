@@ -1,7 +1,7 @@
 from flask import request
 from flask_restplus import Resource, fields, Namespace
-from app import api, db
-from app.models import Person
+from myapiflask import api, db  # Cambio en la referencia al módulo de la API y la base de datos
+from myapiflask.models import Person  # Cambio en la referencia al modelo Person
 
 ns = Namespace('personas', description='Operaciones relacionadas con personas')
 

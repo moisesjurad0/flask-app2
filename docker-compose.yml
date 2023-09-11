@@ -1,7 +1,7 @@
-version: '3'
+version: "3"
 services:
   myapi:
-    build: .
+    build: . # context: ./myapiflask  # Carpeta donde se encuentra el Dockerfile
     ports:
       - "5000:5000"
     environment:
