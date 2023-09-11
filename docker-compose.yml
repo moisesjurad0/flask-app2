@@ -1,14 +1,11 @@
-version: "3"
+version: '3'
+
 services:
-  myapi:
-    build: . # context: ./myapiflask  # Carpeta donde se encuentra el Dockerfile
+  web:
+    build: .
     ports:
       - "5000:5000"
-    environment:
-      - MONGO_URI=mongodb://mongodb/myapi_db
     depends_on:
-      - mongodb
-  mongodb:
+      - mongo
+  mongo:
     image: mongo
-    ports:
-      - "27017:27017"
