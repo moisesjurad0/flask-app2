@@ -1,177 +1,66 @@
-from flask import Flask, jsonify, request
+from flask import Flask, request
+from flask_restx import Api, Resource, fields
 from flask_pymongo import PyMongo
-from flasgger import Swagger
-from flasgger import Schema, fields
-from apispec.ext.marshmallow import MarshmallowPlugin
-from apispec_webframeworks.flask import FlaskPlugin
 
 app = Flask(__name__)
-app.config['MONGO_URI'] = 'mongodb://db:27017/api'
+app.config['MONGO_URI'] = 'mongodb://db:27017/mydatabase'  # Cambia la URI de MongoDB según tu configuración
+api = Api(app)
 mongo = PyMongo(app)
-swagger = Swagger(app)
 
+# Definir el modelo de datos para Persona
+persona_model = api.model('Persona', {
+    'nombres': fields.String(required=True, description='Nombres de la persona'),
+    'apellidos': fields.String(required=True, description='Apellidos de la persona'),
+    'dni': fields.String(required=True, description='DNI de la persona')
+})
 
-# @app.route('/people', methods=['GET'])
-# def get_people():
-#     """
-#     summary: Obtiene la lista de people
-#     ---
-#     tags:
-#         - people
-#     responses:
-#       200:
-#         description: Lista de people
-#         content:
-#           application/json:
-#             schema:
-#               type: array
-#               items:
-#                 $ref: "#/definitions/People"
-#     """
-#     """
-#     ---
-#     summary: Crea una nueva people
-#     requestBody:
-#       required: true
-#       content:
-#         application/json:
-#           schema:
-#             $ref: "#/components/schemas/People"
-#     responses:
-#       200:
-#         description: People creada exitosamente
-#     """
-#     people = mongo.db.people.find()
-#     return people
+# Definir la colección en la base de datos
+personas = mongo.db.personas
 
+@api.route('/personas')
+class PersonasResource(Resource):
+    @api.marshal_with(persona_model, as_list=True)
+    def get(self):
+        """Obtener la lista de todas las personas"""
+        personas_list = list(personas.find())
+        return personas_list
 
-# @app.route('/people/<id>', methods=['GET'])
-# def get_people(id):
-#     """
-#     ---
-#     summary: Obtiene una people por DNI
-#     parameters:
-#       - in: path
-#         name: dni
-#         required: true
-#         schema:
-#           type: string
-#     responses:
-#       200:
-#         description: People encontrada
-#         content:
-#           application/json:
-#             schema:
-#               $ref: "#/components/schemas/People"
-#       404:
-#         description: People no encontrada
-#     """
-#     people = mongo.db.people.find_one({"_id": id})
-#     return jsonify({"name": people["name"],
-#                     "lastname": people["lastname"],
-#                     "dni": people["dni"]})
-#     # people = People.objects.get(id=id)
-#     # return people
+    @api.expect(persona_model)
+    @api.marshal_with(persona_model, code=201)
+    def post(self):
+        """Crear una nueva persona"""
+        nueva_persona = request.json
+        persona_id = personas.insert_one(nueva_persona).inserted_id
+        nueva_persona['_id'] = persona_id
+        return nueva_persona, 201
 
+@api.route('/personas/<string:dni>')
+class PersonaResource(Resource):
+    @api.marshal_with(persona_model)
+    def get(self, dni):
+        """Obtener los detalles de una persona por DNI"""
+        persona = personas.find_one({'dni': dni})
+        if persona:
+            return persona
+        api.abort(404, f"No se encontró una persona con DNI {dni}")
 
+    @api.expect(persona_model)
+    @api.marshal_with(persona_model)
+    def put(self, dni):
+        """Actualizar los detalles de una persona por DNI"""
+        persona_actualizada = request.json
+        resultado = personas.update_one({'dni': dni}, {'$set': persona_actualizada})
+        if resultado.modified_count == 1:
+            persona = personas.find_one({'dni': dni})
+            return persona
+        api.abort(404, f"No se encontró una persona con DNI {dni}")
 
-
-class PeopleSchema(Schema):
-    name = fields.Str()
-    lastname = fields.Str()
-    dni = fields.Str()
-
-
-@app.route('/people', methods=['POST'])
-def create_people(body: PeopleSchema):
-    """Create a cute furry People endpoint.
-    ---
-    post:
-      description: Create a random pet
-      parameters: 
-        - in: body
-          name: body
-          required: True
-          schema:
-                $ref: '#/definitions/People'
-      responses:
-        201:
-          description: If People is created
-          content:
-            application/json:
-              status: string
-    """
-    data = request.get_json()
-    errors = PeopleSchema.validate(data)
-    if errors:
-        return jsonify({'message': 'Validation errors', 'errors': errors}), 400
-
-    # name = data.get('name')
-    # lastname = data.get('lastname')
-    # dni = data.get('dni')
-
-    # people = PeopleSchema(name=name, lastname=lastname, dni=dni)
-    # people_id = mongo.db.people.insert_one({"name": person["name"], "lastname": person["lastname"], "dni": person["dni"]}).inserted_id
-
-    return jsonify(
-        {"status": "New user created"}
-    ), 201
-
-
-
-    # name = request.json["name"]
-    # lastname = request.json["lastname"]
-    # dni = request.json["dni"]
-    # people_id = mongo.db.people.insert_one(
-    #     {"name": name, "lastname": lastname, "dni": dni}
-    # ).inserted_id
-    return jsonify(str(people_id))
-
-
-# @app.route('/people/<id>', methods=['PUT'])
-# def update_people(id):
-#     """
-#     ---
-#     summary: Actualiza una people por DNI
-#     parameters:
-#       - in: path
-#         name: dni
-#         required: true
-#         schema:
-#           type: string
-#     requestBody:
-#       required: true
-#       content:
-#         application/json:
-#           schema:
-#             $ref: "#/components/schemas/People"
-#     responses:
-#       200:
-#         description: People actualizada exitosamente
-#       404:
-#         description: People no encontrada
-#     """
-#     # data = request.get_json()
-#     # people = People.objects.get(id=id)
-#     # people.update(**data)
-#     # people.save()
-#     # return people
-#     name = request.json["name"]
-#     lastname = request.json["lastname"]
-#     dni = request.json["dni"]
-#     mongo.db.people.update_one(
-#         {"_id": id}, {"$set": {"name": name, "lastname": lastname, "dni": dni}}
-#     )
-#     return jsonify({"message": "People updated successfully"})
-
-
-# @app.route('/people/<id>', methods=['DELETE'])
-# def delete_people(id):
-#     # People.objects.get(id=id).delete()
-#     # return 'People deleted'
-#     mongo.db.people.delete_one({"_id": id})
-#     return jsonify({"message": "People deleted successfully"})
-
+    def delete(self, dni):
+        """Eliminar una persona por DNI"""
+        resultado = personas.delete_one({'dni': dni})
+        if resultado.deleted_count == 1:
+            return '', 204
+        api.abort(404, f"No se encontró una persona con DNI {dni}")
 
 if __name__ == '__main__':
     app.run(debug=True)

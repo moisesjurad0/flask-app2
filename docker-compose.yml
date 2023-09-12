@@ -1,10 +1,13 @@
-version: '3'
+version: "3"
 
 services:
   web:
     build: .
     ports:
+      # - "80:80"
+      # - "443:443"
       - "5000:5000"
+      # - "host_port:container_port"
     depends_on:
       - db
   db:
