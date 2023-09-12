@@ -1,15 +1,11 @@
-version: "3"
+version: '3'
 
 services:
-  api:
+  web:
     build: .
-    image: moisesjurad0/tmp.flask.app2.main
     ports:
-      - "80:80"
       - "5000:5000"
     depends_on:
       - db
   db:
     image: mongo:latest
-    # ports:
-    # - "27017:27017"
