@@ -3,7 +3,8 @@ from flask_restx import Api, Resource, fields
 from flask_pymongo import PyMongo
 
 app = Flask(__name__)
-app.config['MONGO_URI'] = 'mongodb://db:27017/mydatabase'  # Cambia la URI de MongoDB según tu configuración
+# app.config['MONGO_URI'] = 'mongodb://db:27017/mydatabase'  # Cambia la URI de MongoDB según tu configuración
+app.config['MONGO_URI'] = 'mongodb://root:rootpassword@db:27017/mydatabase?authSource=admin'
 api = Api(app)
 mongo = PyMongo(app)
 

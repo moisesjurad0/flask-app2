@@ -4,11 +4,20 @@ services:
   web:
     build: .
     ports:
-      # - "80:80"
-      # - "443:443"
       - "5000:5000"
-      # - "host_port:container_port"
+    volumes:
+      - .:/app
     depends_on:
       - db
   db:
     image: mongo:latest
+    #container_name: mongoDB-Cont
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data_cont:/data/db
+volumes:
+  mongodb_data_cont:
